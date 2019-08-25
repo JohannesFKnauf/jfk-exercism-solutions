@@ -1,8 +1,17 @@
 (ns hamming)
 
+(defn hamming-score [l]
+  (if (apply not= l)
+    1
+    0))
+
 (defn distance [strand1 strand2]
-  (if (not= (count strand1) (count strand2))
-    nil
-    (->> (map not= strand1 strand2)
-         (filter true?)
-         (count))))
+  (loop [num-diffs 0
+         strands (list strand1 strand2)]
+    (cond
+      (every? empty? strands) num-diffs
+      (not-any? empty? strands) (recur (-> (map first strands)
+                                           (hamming-score)
+                                           (+ num-diffs))
+                                       (map rest strands))
+      :else nil)))
