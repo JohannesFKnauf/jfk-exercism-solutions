@@ -1,4 +1,4 @@
 (ns reverse-string)
 
 (defn reverse-string [s]
-  (apply str (reduce conj () s)))
+  (reduce #(str %2 %1) "" s))
