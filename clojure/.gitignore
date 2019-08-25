@@ -1,0 +1,5 @@
+# leiningen failure protocols
+.lein-failures
+
+# leiningen compile cache
+target/
