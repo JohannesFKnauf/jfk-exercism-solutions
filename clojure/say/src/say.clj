@@ -1,6 +1,6 @@
 (ns say)
 
-(def simple
+(def simple-number-words
   {0 "zero"
    1 "one"
    2 "two"
@@ -22,20 +22,21 @@
    18 "eighteen"
    19 "nineteen"})
 
-(def all-static
-  (into simple
-        (for [[tens tensword] [[20 "twenty"]
-                    [30 "thirty"]
-                    [40 "forty"]
-                    [50 "fifty"]
-                    [60 "sixty"]
-                    [70 "seventy"]
-                    [80 "eighty"]
-                    [90 "ninety"]]
-              [ones onesword] (map #(vector % (get simple %)) (range 0 9))]
+(def number-words
+  (into simple-number-words
+        (for [[tens tens-word] [[20 "twenty"]
+                                [30 "thirty"]
+                                [40 "forty"]
+                                [50 "fifty"]
+                                [60 "sixty"]
+                                [70 "seventy"]
+                                [80 "eighty"]
+                                [90 "ninety"]]
+              [ones ones-word] (map #(vector % (simple-number-words %))
+                                    (range 0 9))]
           {(+ tens ones) (if (zero? ones)
-                           tensword
-                           (str tensword "-" onesword))})))
+                           tens-word
+                           (str tens-word "-" ones-word))})))
 
 (def magnitudes
   [nil "thousand" "million" "billion"])
@@ -45,27 +46,25 @@
               (cons (mod n 1000) (chunks-of-thousand (quot n 1000))))))
 
 
-(defn say-small-num [num]
+(defn chunk-words [num mag]
   {:pre [(< num 1000)]}
-  (let [[hundreds minor] ((juxt quot mod) num 100)]
-    (if (zero? hundreds)
-      (get all-static minor)
-      (str (get all-static hundreds) " " "hundred" (if (zero? minor)
-                                                     ""
-                                                     (str " " (get all-static minor)))))))
+  (let [hundreds (quot num 100)
+        minor (mod num 100)]
+    (cond-> []
+      (pos? hundreds) (conj (number-words hundreds) "hundred")
+      (pos? minor) (conj (number-words minor))
+      mag (conj mag))))
 
 (defn say [n]
   (->> n
        (chunks-of-thousand)
        (map vector magnitudes)
-       (remove (fn [[mag chunk]]
+       (remove (fn [[_ chunk]]
                  (zero? chunk)))
        (map (fn [[mag chunk]]
-              (let [said (say-small-num chunk)]
-                (if mag
-                  (str said " " mag)
-                  (str said)))))
+              (chunk-words chunk mag)))
        (reverse)
+       (flatten)
        (clojure.string/join " ")))
 
 (defn number [num]
