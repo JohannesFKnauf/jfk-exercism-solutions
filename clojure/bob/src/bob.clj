@@ -1,29 +1,38 @@
 (ns bob)
 
-(defmacro static-fn [f] `(fn [x#] (~f x#)))
+(defmacro static-fn
+  "Takes a static Java method reference and wraps it into a clojure function."
+  [f] `(fn [x#] (~f x#)))
+
+(defn partial-rest [f & args]
+  (fn [x]
+    (-> f
+        (partial x)
+        (apply args))))
+
+(def any-one?
+  (complement not-any?))
 
 
-(defn all-whitespace? [s]
-  (every? (static-fn Character/isSpaceChar) s))
 
-(defn all-uppercase? [s]
-  (not-any? (static-fn Character/isLowerCase) s))
+(def all-whitespace?
+  (partial every? (static-fn Character/isSpaceChar)))
 
-(defn contains-a-letter? [s]
-  (->> s
-       (some (static-fn Character/isLetter))
-       (boolean)))
+(def all-uppercase?
+  (partial not-any? (static-fn Character/isLowerCase)))
+
+(def contains-a-letter?
+  (partial any-one? (static-fn Character/isLetter)))
 
 
-(defn yelling? [s]
-  (and (all-uppercase? s)
-       (contains-a-letter? s)))
+(def yelling?
+  (every-pred all-uppercase? contains-a-letter?))
 
-(defn question? [s]
-  (clojure.string/ends-with? s "?"))
+(def question?
+  (partial-rest clojure.string/ends-with? "?"))
 
-(defn saying-nothing? [s]
-  (all-whitespace? s))
+(def saying-nothing?
+  all-whitespace?)
 
 
 (defn response-for [s]
@@ -32,4 +41,3 @@
         (yelling? s) "Whoa, chill out!"
         (question? s) "Sure."
         :else "Whatever."))
-
