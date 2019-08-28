@@ -1,12 +1,12 @@
 (ns run-length-encoding)
 
+(defn some-item [pred item]
+  (when (pred item) item))
+
 (defn compress-group [group]
-  (let [len (count group)
-        char (first group)]
-    (str (if (< 1 len)
-           len
-           nil)
-         char)))
+  (str (some-item (partial < 1)
+                  (count group))
+       (first group)))
 
 (defn run-length-encode
   "encodes a string with run-length-encoding"
