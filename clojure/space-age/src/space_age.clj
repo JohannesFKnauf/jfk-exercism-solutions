@@ -17,27 +17,20 @@
 (defn in-orbital-years [seconds planet]
   (float (/ seconds (get orbital-periods planet))))
 
+(defmacro def-on-planet [planet]
+  `(do
+     (defn ~(symbol (str "on-" planet)) [seconds] (str seconds))))
 
-(defn on-mercury [seconds]
-  (in-orbital-years seconds :mercury))
-
-(defn on-venus [seconds]
-  (in-orbital-years seconds :venus))
-
-(defn on-earth [seconds]
-  (in-orbital-years seconds :earth))
-
-(defn on-mars [seconds]
-  (in-orbital-years seconds :mars))
-
-(defn on-jupiter [seconds]
-  (in-orbital-years seconds :jupiter))
-
-(defn on-saturn [seconds]
-  (in-orbital-years seconds :saturn))
-
-(defn on-neptune [seconds]
-  (in-orbital-years seconds :neptune))
-
-(defn on-uranus [seconds]
-  (in-orbital-years seconds :uranus))
+(doseq
+    [planet ["mercury"
+             "venus"
+             "earth"
+             "mars"
+             "jupiter"
+             "saturn"
+             "neptune"
+             "uranus"]]
+  (intern *ns*
+          (symbol (str "on-" planet))
+          (fn [seconds]
+            (in-orbital-years seconds (keyword planet)))))
