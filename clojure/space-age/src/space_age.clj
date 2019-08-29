@@ -21,15 +21,11 @@
   `(do
      (defn ~(symbol (str "on-" planet)) [seconds] (str seconds))))
 
+(def all-planets
+  (map name (keys orbital-periods)))
+
 (doseq
-    [planet ["mercury"
-             "venus"
-             "earth"
-             "mars"
-             "jupiter"
-             "saturn"
-             "neptune"
-             "uranus"]]
+    [planet all-planets]
   (intern *ns*
           (symbol (str "on-" planet))
           (fn [seconds]
