@@ -17,10 +17,6 @@
 (defn in-orbital-years [seconds planet]
   (float (/ seconds (get orbital-periods planet))))
 
-(defmacro def-on-planet [planet]
-  `(do
-     (defn ~(symbol (str "on-" planet)) [seconds] (str seconds))))
-
 (def all-planets
   (map name (keys orbital-periods)))
 
