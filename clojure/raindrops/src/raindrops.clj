@@ -1,24 +1,21 @@
 (ns raindrops)
 
-(def drops
+(def alldrops
   {3 "Pling"
    5 "Plang"
    7 "Plong"})
 
 (defn divisible-by? [n]
-  #(= 0 (mod % n)))
+  #(zero? (mod % n)))
+
+(defn divisible-by?-reducer [n]
+  (fn [acc divisor dropstr]
+    (if ((divisible-by? divisor) n) (str acc dropstr) acc)))
 
 (defn dropify [n]
-  (reduce-kv #(if ((divisible-by? %2) n)
-                (str %1 %3)
-                %1)
-             ""
-             drops))
-
-
+  (reduce-kv (divisible-by?-reducer n) nil alldrops))
 
 (defn convert [n]
-  (let [c (dropify n)]
-    (if (clojure.string/blank? c)
-      (str n)
-      c)))
+  (if-let [raindrops (dropify n)]
+    raindrops
+    (str n)))
