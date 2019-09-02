@@ -1,5 +1,8 @@
 (ns accumulate)
 
 (defn accumulate [f coll]
-  (for [x coll]
-    (f x)))
+  (lazy-seq
+   (when-let [s (seq coll)]
+     (cons
+      (f (first coll))
+      (accumulate f (rest coll))))))
