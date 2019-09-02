@@ -6,14 +6,9 @@
     \1 1
     \2 2))
 
-(def powers-of-three
-  (iterate (partial * 3) 1))
-
 (defn to-decimal [s]
   (try
     (->> s
-         (reverse)
          (map to-digit)
-         (map * powers-of-three)
-         (reduce +))
+         (reduce #(+ (* 3 %1) %2)))
     (catch IllegalArgumentException e 0)))
