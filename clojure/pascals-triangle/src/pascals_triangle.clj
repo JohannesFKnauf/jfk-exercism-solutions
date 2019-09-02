@@ -1,15 +1,12 @@
 (ns pascals-triangle)
 
-(defn rows
-  ([] (rows [1]))
-  ([current-row] (let [next-row (mapv +'
-                                      (concat [0] current-row)
-                                      (concat current-row [0]))]
-                   (lazy-seq (cons current-row
-                                   (rows next-row))))))
+(defn next-row [current-row]
+  (mapv +'
+        (concat [0] current-row)
+        (concat current-row [0])))
 
 (def triangle
-  (rows))
+  (iterate next-row [1]))
 
 (defn row [n]
   (nth triangle (dec n)))
