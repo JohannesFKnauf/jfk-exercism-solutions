@@ -4,9 +4,11 @@
   {:pre [(>= n 0)
          (every? #(Character/isDigit %) s)
          (>= (count s) n)]}
-  (->> s
-       (partition n 1)
-       (map (fn [coll]
-              (map #(Integer/parseInt (str %)) coll)))
-       (map #(reduce * 1 %))
-       (#(if (empty? %) 1 (reduce max %)))))
+  (let [products (->> s
+                      (map str)
+                      (map #(Integer/parseInt %))
+                      (partition n 1)
+                      (map (partial reduce *)))]
+    (if (seq products)
+      (apply max products)
+      1)))
