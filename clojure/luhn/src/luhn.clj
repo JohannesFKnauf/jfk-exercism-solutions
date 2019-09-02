@@ -22,16 +22,25 @@
 (defn divisibly-by-10 [i]
   (-> i
       (mod 10)
-      (= 0)))
+      (zero?)))
 
-(defn valid? [s]
-  (and (not (re-find #"[^\p{Digit}\p{Space}]" s))
-       (not (re-matches #"^\p{Space}*0$" s))
-       (->> s
-            (filter #(Character/isDigit %))
-            (map digit->int)
-            (reverse)
-            (partition 2 2 (repeat 0))
-            (map (fn [[a b]] (+ a (wrapped-double b))))
-            (reduce +)
-            (divisibly-by-10))))
+(defn just-space-and-digits? [s]
+  (not (re-find #"[^\p{Digit}\p{Space}]" s)))
+
+(defn no-single-0? [s]
+  (not (re-matches #"^\p{Space}*0$" s)))
+
+(defn checksum-valid? [s]
+  (->> s
+       (filter #(Character/isDigit %))
+       (map digit->int)
+       (reverse)
+       (partition 2 2 (repeat 0))
+       (map (fn [[a b]] (+ a (wrapped-double b))))
+       (reduce +)
+       (divisibly-by-10)))
+
+(def valid?
+  (every-pred just-space-and-digits?
+              no-single-0?
+              checksum-valid?))
