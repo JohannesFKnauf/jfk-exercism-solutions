@@ -1,13 +1,15 @@
 (ns pig-latin
   (:require clojure.string))
 
+(def starts-with-vowel #"^((?:[aeiou]|xr|yt)\w*)()$")
+(def starts-with-consonant #"^([bcdfghjklmnpqrstvwxz]*qu|[bcdfghjklmnpqrstvwxyz][bcdfghjklmnpqrstvwxz]*)(\w*)$")
+
+(defn translate-word [s]
+  (->> [starts-with-vowel starts-with-consonant]
+       (some #(re-matches %1 s))
+       (#(str (% 2) (% 1) "ay"))))
 
 (defn translate [s]
-  (let [word-starts ["(?:[aeiou]|xr|yt)\\w*"
-                     "[bcdfghjklmnpqrstvwxz]*qu"
-                     "[bcdfghjklmnpqrstvwxz]+y"
-                     "[bcdfghjklmnpqrstvwxyz]+"]
-        pig-pattern (re-pattern (str "\\b("
-                                     (clojure.string/join "|" word-starts)
-                                     ")(\\w*)\\b"))]
-    (clojure.string/replace s pig-pattern "$2$1ay")))
+  (->> (clojure.string/split s #" ")
+       (map translate-word)
+       (clojure.string/join " ")))
