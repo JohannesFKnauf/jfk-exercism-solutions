@@ -14,20 +14,21 @@ func Valid(input string) bool {
 	rs := []rune(input)
 	for i := len(rs) - 1; i >= 0; i-- {
 		r := rs[i]
-		if unicode.IsDigit(r) {
+		switch {
+		case unicode.IsSpace(r):
+			continue
+		case unicode.IsDigit(r):
 			digits++
 			n, _ := strconv.Atoi(string(r))
 			if alt {
-				x := n * 2
-				if x > 9 {
-					x -= 9
+				n *= 2
+				if n > 9 {
+					n -= 9
 				}
-				sum += x
-			} else {
-				sum += n
 			}
+			sum += n
 			alt = !alt
-		} else if !unicode.IsSpace(r) {
+		default:
 			return false
 		}
 	}
