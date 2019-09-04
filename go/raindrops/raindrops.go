@@ -5,29 +5,17 @@ import (
 	"strconv"
 )
 
-type replacementRule struct {
-	divisor     int
-	replacement string
-}
-
-var replacementRules = []replacementRule{
-	replacementRule{3, "Pling"},
-	replacementRule{5, "Plang"},
-	replacementRule{7, "Plong"},
-}
-
-// DivisibleBy checks a given number for its divisibility by a given divisor
-func DivisibleBy(number int, divisor int) bool {
-	return number%divisor == 0
-}
-
 // Convert a n into its pling-plong equivalent depending on its divisors
 func Convert(n int) string {
 	var equivalent string
-	for _, rule := range replacementRules {
-		if DivisibleBy(n, rule.divisor) {
-			equivalent += rule.replacement
-		}
+	if n%3 == 0 {
+		equivalent += "Pling"
+	}
+	if n%5 == 0 {
+		equivalent += "Plang"
+	}
+	if n%7 == 0 {
+		equivalent += "Plong"
 	}
 	if equivalent == "" {
 		equivalent = strconv.Itoa(n)
