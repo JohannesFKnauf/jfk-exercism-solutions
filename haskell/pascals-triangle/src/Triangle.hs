@@ -1,11 +1,13 @@
 module Triangle (rows) where
 
-import Data.List (tails)
+row :: Int -> [Integer]
+row 0 = []
+row 1 = [1]
+row n = [x + y | (x, y) <- zip prev $ reverse prev]
+  where
+    prev = 0 : row (n - 1)
 
 rows :: Int -> [[Integer]]
 rows 0 = []
-rows 1 = [[1]]
-rows n = prev ++ [[ x + y | (x:y:_) <- tails lastRow ]]
-  where
-    prev = rows (n - 1)
-    lastRow = [0] ++ (last prev) ++ [0]
+rows 1 = [row 1]
+rows n = rows (n - 1) ++ [row n]
