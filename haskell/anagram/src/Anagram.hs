@@ -1,18 +1,21 @@
 module Anagram (anagramsFor) where
 
-import Control.Monad (liftM2)
+import Control.Monad (liftM, liftM2)
 import Data.Function (on)
 import Data.List (filter, sort)
 import Data.Char (toLower)
 
 anagramsFor :: String -> [String] -> [String]
-anagramsFor ref =
+anagramsFor =
   let
+    -- (String -> String -> Bool) is interpreted as (String -> String ->) nested function Monad
+    (.&&.) = liftM2 $ liftM2 (&&)
+    notM = liftM $ liftM not
     normalizeCase = map toLower
     normalize = sort . normalizeCase
     equivalentAfter = on (==)
     hasSameLettersAs = equivalentAfter normalize
     isSameWordAs = equivalentAfter normalizeCase
-    (.&&.) = liftM2 (&&)
+    isDifferentWordAs = notM isSameWordAs
   in
-    filter ((not . isSameWordAs ref) .&&. (hasSameLettersAs ref))
+    filter . (hasSameLettersAs .&&. isDifferentWordAs)
