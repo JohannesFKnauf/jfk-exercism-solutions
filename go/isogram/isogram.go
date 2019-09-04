@@ -2,23 +2,22 @@
 package isogram
 
 import (
+	"strings"
 	"unicode"
 )
 
 // IsIsogram detects if a given word is an isogram
 // A word is an isogram, if it contains no character more than once
 func IsIsogram(word string) bool {
-	var letterSeen [26]bool // each field in the array corresponds to a letter in the alphabet; the array index is given by the offset from 'a'
-	for _, letter := range word {
-		caseInsensitiveLetter := unicode.ToLower(letter)
-		i := int(caseInsensitiveLetter - 'a')
-		if i < 0 || i > 25 {
+	seen := make(map[rune]bool)
+	for _, r := range strings.ToLower(word) {
+		if !unicode.IsLetter(r) {
 			continue
 		}
-		if letterSeen[i] {
+		if seen[r] {
 			return false
 		}
-		letterSeen[i] = true
+		seen[r] = true
 	}
 	return true
 }
