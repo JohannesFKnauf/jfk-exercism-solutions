@@ -3,7 +3,7 @@ module Triangle (rows) where
 row :: Int -> [Integer]
 row 0 = []
 row 1 = [1]
-row n = [x + y | (x, y) <- zip prev $ reverse prev]
+row n = zipWith (+) prev $ reverse prev
   where
     prev = 0 : row (n - 1)
 
