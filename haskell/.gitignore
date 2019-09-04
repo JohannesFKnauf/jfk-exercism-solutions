@@ -1,0 +1,4 @@
+# Stack temporary files and folders
+.stack-work/
+*.cabal
+stack.yaml.lock
