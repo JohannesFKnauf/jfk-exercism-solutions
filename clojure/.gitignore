@@ -1,5 +1,9 @@
 # leiningen failure protocols
 .lein-failures
 
+# leiningen repl history
+.lein-repl-history
+
 # leiningen compile cache
 target/
+
