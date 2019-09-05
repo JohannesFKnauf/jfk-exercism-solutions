@@ -1,10 +1,12 @@
-(ns acronym)
+(ns acronym
+  (:require [clojure.string :as string]))
 
-(defn word-initials [s]
-  (re-seq #"^\p{Upper}|(?<=[-\s])\p{Alpha}|(?<=\p{Lower})\p{Upper}" s))
+(defn words [s]
+  (string/split s #"\s|-|(?<=\p{Lower})(?=\p{Upper})"))
 
 (defn acronym [s]
   (->> s
-       word-start-letters
-       clojure.string/join
-       clojure.string/upper-case))
+       words
+       (map first)
+       string/join
+       string/upper-case))
