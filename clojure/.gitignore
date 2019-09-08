@@ -4,6 +4,9 @@
 # leiningen repl history
 .lein-repl-history
 
+# emacs cider mode nrepl temp file
+.nrepl-port
+
 # leiningen compile cache
 target/
 
