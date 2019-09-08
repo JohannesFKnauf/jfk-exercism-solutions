@@ -27,10 +27,12 @@
       (place-queen positions :b "B")
       render-board))
 
-(defn can-attack [{[xb yb] :b [xw yw] :w}]
-  (cond
-    (= xb xw) true
-    (= yb yw) true
-    (= (abs (- yw yb))
-       (abs (- xb xw))) true
-    :else false))
+(defn can-attack [{[xb yb] :b
+                   [xw yw] :w}]
+  (let [dx (abs (- xb xw))
+        dy (abs (- yb yw))]
+    (cond
+      (zero? dx) true
+      (zero? dy) true
+      (= dx dy) true
+      :else false)))
