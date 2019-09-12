@@ -73,9 +73,7 @@
   (is (= [1 2 3] (roman-numerals/pad 3 0 [1 2 3 5]))))
 
 (def roman-digit-group-ones
-  {:one \I
-   :half \V
-   :full \X})
+  [\I \V \X])
 
 (deftest roman-digit
   (are [expect digit] (= expect (roman-numerals/roman-digit roman-digit-group-ones digit))

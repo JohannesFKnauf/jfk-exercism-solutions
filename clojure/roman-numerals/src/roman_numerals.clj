@@ -3,45 +3,40 @@
 (defn pad [n v coll]
   (take n (concat coll (repeat v))))
 
-(defn reverse-base-digits [n]
+(defn reverse-base10-digits
+  "reverse-base10-digits splits a number into its base 10 digits, starting with the lowest digit."
+  [n]
   (lazy-seq (if (zero? n) '()
                 (cons (mod n 10)
-                      (reverse-base-digits (quot n 10))))))
+                      (reverse-base10-digits (quot n 10))))))
 
-(defn full-digits [n]
+(defn full-digits
+  "full-digits returns all 4 relevant digits for roman numerals, starting with the highest digit, i.e. the thousands. Missing values are padded by 0."
+  [n]
   (if (zero? n) '(0 0 0 0)
       (->> n
-           reverse-base-digits
+           reverse-base10-digits
            (pad 4 0)
            reverse)))
 
 (def roman-digit-groups
-  [{:one \M
-    :half nil
-    :full nil}
-   {:one \C
-    :half \D
-    :full \M}
-   {:one \X
-    :half \L
-    :full \C}
-   {:one \I
-    :half \V
-    :full \X}])
+  [[\M nil nil]
+   [\C \D \M]
+   [\X \L \C]
+   [\I \V \X]])
 
-(defn roman-digit [roman-digit-group digit]
-  (let [{:keys [one half full]} roman-digit-group]
-    (clojure.string/join (case digit
-                           0 []
-                           1 [one]
-                           2 [one one]
-                           3 [one one one]
-                           4 [one half]
-                           5 [half]
-                           6 [half one]
-                           7 [half one one]
-                           8 [half one one one]
-                           9 [one full]))))
+(defn roman-digit [[one five ten] digit]
+  (clojure.string/join (case digit
+                         0 []
+                         1 [one]
+                         2 [one one]
+                         3 [one one one]
+                         4 [one five]
+                         5 [five]
+                         6 [five one]
+                         7 [five one one]
+                         8 [five one one one]
+                         9 [one ten])))
 
 (defn numerals [n]
   {:pre [(< 0 n 3001)]}
