@@ -3,11 +3,20 @@
 (defn contains-bit? [n bit]
   (not (zero? (bit-and n (bit-shift-left 1 bit)))))
 
-(defn commands [n]
-  (cond-> []
-    (contains-bit? n 0) (conj "wink")
-    (contains-bit? n 1) (conj "double blink")
-    (contains-bit? n 2) (conj "close your eyes")
-    (contains-bit? n 3) (conj "jump")
-    (contains-bit? n 4) reverse))
+(def code-ops
+  [#(conj % "wink")
+   #(conj % "double blink")
+   #(conj % "close your eyes")
+   #(conj % "jump")
+   reverse])
 
+(defn bit-encoder [n]
+  (fn encode-bit [acc [i op]]
+    (if (contains-bit? n i)
+      (op acc)
+      acc)))
+
+(defn commands [n]
+  (->> code-ops
+       (map-indexed vector)
+       (reduce (bit-encoder n) [])))
