@@ -54,17 +54,3 @@
   (testing "do nothing for high numbers if lower 5 bits not set"
     (is (= [] (secret-handshake/commands 32)))))
 
-
-(deftest contains-bit
-  (are [result n bit] (= result (secret-handshake/contains-bit? n bit))
-    true 1 0
-    false 1 1
-    true 2 1
-    true 4 2
-    true 8 3
-    true 16 4
-    true 3 0
-    true 3 1
-    true 19 0
-    true 19 1
-    true 19 4))
