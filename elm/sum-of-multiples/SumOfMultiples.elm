@@ -14,13 +14,8 @@ sumOfMultiples numbers limit =
 allMultiplesUntil : Int -> Int -> List Int
 allMultiplesUntil limit number =
     List.range 1 (maxFactorNotIncluding limit number)
-        |> List.map (multiplyBy number)
+        |> List.map ((*) number)
 
 maxFactorNotIncluding : Int -> Int -> Int
 maxFactorNotIncluding limit number =
     (limit - 1) // number
-
-
-multiplyBy : Int -> Int -> Int
-multiplyBy factor number =
-    factor * number
