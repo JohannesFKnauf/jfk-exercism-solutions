@@ -5,17 +5,14 @@ import Set
 
 sumOfMultiples : List Int -> Int -> Int
 sumOfMultiples numbers limit =
-    numbers
-        |> List.map (allMultiplesUntil limit)
-        |> List.concat
-        |> Set.fromList
-        |> Set.foldl (+) 0
+    List.range 1 (limit - 1)
+        |> List.filter (multipleOfAny numbers)
+        |> List.sum
 
-allMultiplesUntil : Int -> Int -> List Int
-allMultiplesUntil limit number =
-    List.range 1 (maxFactorNotIncluding limit number)
-        |> List.map ((*) number)
+multipleOfAny : List Int -> Int -> Bool
+multipleOfAny numbers n =
+    List.any (divisorOf n) numbers
 
-maxFactorNotIncluding : Int -> Int -> Int
-maxFactorNotIncluding limit number =
-    (limit - 1) // number
+divisorOf : Int -> Int -> Bool
+divisorOf n x =
+    modBy x n == 0
