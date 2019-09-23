@@ -1,21 +1,10 @@
 module RNATranscription exposing (..)
 
-import List
-import String
-
 toRNA : String -> Result Char String
 toRNA dna =
-    case String.uncons dna of
-        Just (nextbase, restdna) ->
-            case singleBaseToRna nextbase of
-                Ok result ->
-                    Result.map (String.cons result) (toRNA restdna)
-                Err error ->
-                    Err error
-        Nothing ->
-            Ok ""
+    String.foldr (Result.map2 String.cons << baseToRna) (Ok "") dna
 
-singleBaseToRna base =
+baseToRna base =
     case base of
         'A' -> Ok 'U'
         'C' -> Ok 'G'
