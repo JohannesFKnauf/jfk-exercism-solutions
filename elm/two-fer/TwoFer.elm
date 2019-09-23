@@ -3,6 +3,7 @@ module TwoFer exposing (twoFer)
 
 twoFer : Maybe String -> String
 twoFer name =
-    case name of
-        Just xs -> "One for " ++ xs ++ ", one for me."
-        Nothing -> twoFer (Just "you")
+    let
+        greetee = Maybe.withDefault "you" name
+    in
+        "One for " ++ greetee ++ ", one for me."
