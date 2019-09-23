@@ -3,15 +3,16 @@ module DifferenceOfSquares exposing (..)
 import List
 
 squareOfSum : Int -> Int
-squareOfSum num =
-    (num * (num + 1) // 2)^2
-        
+squareOfSum n =
+    let
+        sum = n * (n + 1) // 2
+    in
+        sum ^ 2
+
 sumOfSquares : Int -> Int
-sumOfSquares num =
-    List.range 1 num
-        |> List.map (\n -> n^2)
-        |> List.sum
+sumOfSquares n =
+    n * (n + 1) * (2*n + 1) // 6
                
 difference : Int -> Int
-difference num =
-    (squareOfSum num) - (sumOfSquares num)
+difference n =
+    squareOfSum n - sumOfSquares n
