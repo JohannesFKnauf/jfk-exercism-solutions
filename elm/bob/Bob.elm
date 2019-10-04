@@ -12,26 +12,21 @@ type MatchResult = SayNothing
 safeRegex re =
     Maybe.withDefault Regex.never re
 
+check : String -> String -> Bool
+check =
+    Regex.fromString >> safeRegex >> Regex.contains
+
 isEmpty : String -> Bool
-isEmpty msg =
-    let
-        re = Regex.fromString "^[ \u{000D}\t\n]*$" |> safeRegex
-    in
-        Regex.contains re msg
+isEmpty =
+    check "^[ \u{000D}\t\n]*$"
 
 isAllUppercase : String -> Bool
 isAllUppercase msg =
-    let
-        re = Regex.fromString "[A-Z]" |> safeRegex
-    in
-        Regex.contains re msg && String.toUpper msg == msg
+    check "[A-Z]" msg && String.toUpper msg == msg
 
 hasEndingQuestionMark : String -> Bool
-hasEndingQuestionMark msg =
-    let
-        re = Regex.fromString "\\?[ \t\n]*$" |> safeRegex
-    in
-        Regex.contains re msg
+hasEndingQuestionMark =
+    check "\\?[ \t\n]*$"
                    
 classify : String -> MatchResult
 classify msg =
