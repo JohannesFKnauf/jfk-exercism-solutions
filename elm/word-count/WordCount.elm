@@ -17,10 +17,9 @@ accumulateWordCount =
     List.foldr incrementWordCount Dict.empty
         
 incrementWordCount : String -> Dict.Dict String Int -> Dict.Dict String Int
-incrementWordCount key =
-    Dict.update key incrementWithDefault
-
-incrementWithDefault : Maybe Int -> Maybe Int
-incrementWithDefault num =
-    (Maybe.withDefault 0 num) + 1
-        |> Just
+incrementWordCount key map =
+    let
+        cur = Dict.get key map
+        next = Maybe.withDefault 0 cur + 1
+    in
+        Dict.insert key next map
