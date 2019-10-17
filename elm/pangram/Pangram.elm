@@ -8,6 +8,6 @@ isPangram text =
         |> String.toList
         |> Set.fromList
         |> Set.map Char.toLower
-        |> Set.filter Char.isLower
+        |> Set.filter Char.isAlpha
         |> Set.size
         |> (==) 26
