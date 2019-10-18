@@ -17,29 +17,17 @@ type alias NucleotideCounts =
 
 nucleotideCounts : String -> NucleotideCounts
 nucleotideCounts sequence =
-    sequence
-        |> String.toList
-        |> List.foldl incNucleotid zeroNucleotideCounts
+    let
+        empty = NucleotideCounts 0 0 0 0
+        inc nuc cnt = case Char.toLower nuc of
+                          'a' -> { cnt | a = cnt.a + 1 }
+                          't' -> { cnt | t = cnt.t + 1 }
+                          'c' -> { cnt | c = cnt.c + 1 }
+                          'g' -> { cnt | g = cnt.g + 1 }
+                          _ -> cnt
+    in
+        sequence
+            |> String.toList
+            |> List.foldl inc empty
       
 
-zeroNucleotideCounts =
-    { a=0
-    , t=0
-    , c=0
-    , g=0
-    }
-
-incNucleotid : Char -> NucleotideCounts -> NucleotideCounts
-incNucleotid nucleotid nucleotidCount =
-    let
-        incA = { nucleotidCount | a = nucleotidCount.a + 1 }
-        incT = { nucleotidCount | t = nucleotidCount.t + 1 }
-        incC = { nucleotidCount | c = nucleotidCount.c + 1 }
-        incG = { nucleotidCount | g = nucleotidCount.g + 1 }
-    in
-        case Char.toLower nucleotid of
-            'a' -> incA
-            't' -> incT
-            'c' -> incC
-            'g' -> incG
-            _ -> nucleotidCount
