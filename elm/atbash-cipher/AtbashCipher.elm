@@ -5,9 +5,9 @@ import Dict
 encode : String -> String
 encode plain =
     plain
-        |> String.filter isAlphaNum
+        |> String.filter Char.isAlphaNum
         |> String.toLower
-        |> String.map retrieveMapping
+        |> String.map atbash
         |> chopChunksOf 5
         |> String.join " "
 
@@ -15,17 +15,41 @@ decode : String -> String
 decode cipher =
     cipher
         |> String.filter ((/=) ' ')
-        |> String.map retrieveMapping
+        |> String.map atbash
 
+chopChunksOf : Int -> String -> List String
+chopChunksOf n s =
+    case s of
+        "" -> []
+        _ -> 
+            let
+                start = String.left 5 s
+                rest = String.dropLeft 5 s
+            in
+                start :: (chopChunksOf n rest)
+           
+atbash : Char -> Char
+atbash c =
+    Dict.get c atbashMapping |> Maybe.withDefault '_'
 
-alphabet : List Char
-alphabet =
-    String.toList "abcdefghijklmnopqrstuvwxyz"
+atbashMapping : Dict.Dict Char Char
+atbashMapping =
+    alphabetCypherMapping ++ digitCypherMapping
+        |> Dict.fromList
 
 alphabetCypherMapping : List (Char, Char)
 alphabetCypherMapping = 
     zip alphabet
         (List.reverse alphabet)
+
+digitCypherMapping : List (Char, Char)
+digitCypherMapping =
+    zip digitsAsChar
+        digitsAsChar
+
+alphabet : List Char
+alphabet =
+    String.toList "abcdefghijklmnopqrstuvwxyz"
 
 digitsAsChar : List Char
 digitsAsChar =
@@ -34,43 +58,5 @@ digitsAsChar =
         |> String.concat
         |> String.toList
 
-digitCypherMapping : List (Char, Char)
-digitCypherMapping =
-    zip digitsAsChar
-        digitsAsChar
-
-cypherMapping : Dict.Dict Char Char
-cypherMapping =
-    alphabetCypherMapping ++ digitCypherMapping
-        |> Dict.fromList
-
-retrieveMapping : Char -> Char
-retrieveMapping key =
-    Dict.get key cypherMapping |> Maybe.withDefault '_'
-
 zip =
     List.map2 (\x y -> (x, y))
-          
-chopChunksOf : Int -> String -> List String
-chopChunksOf n s =
-    if s == "" then []
-    else
-        let
-            start = String.left 5 s
-            rest = String.dropLeft 5 s
-        in
-            start :: (chopChunksOf n rest)
-    
-
-isAlphaNum : Char -> Bool
-isAlphaNum =
-    Char.isUpper
-        |> liftA2 (||) Char.isLower
-        |> liftA2 (||) Char.isDigit
-
-liftA2 : (b -> b -> b) -> (a -> b) -> (a -> b) -> a -> b
-liftA2 c f g x =
-    c (f x) (g x)
-
-
-
