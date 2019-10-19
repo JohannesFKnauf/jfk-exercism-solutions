@@ -17,18 +17,10 @@ slices size input =
             |> Result.andThen (Ok << (List.filter ((==) size << List.length)))
 
 takes : Int -> List a -> List (List a)
-takes n l =
-    case l of
+takes n xxs =
+    case xxs of
         [] -> []
-        x::xs -> (take n l) :: takes n xs
-
-take : Int -> List a -> List a
-take n l =
-    case n of
-        0 -> []
-        _ -> case l of
-                 [] -> []
-                 x::xs -> x :: take (n-1) xs
+        x::xs -> (List.take n xxs) :: takes n xs
 
 intResultFromChar : Char -> Result String Int
 intResultFromChar char =
@@ -37,15 +29,13 @@ intResultFromChar char =
         |> String.toInt
         |> Result.fromMaybe ("Error parsing number from char: " ++ String.fromChar char)
 
-singleton : a -> List a
-singleton a =
-    [a]
-
-
 sequenceResult : List (Result a b) -> Result a (List b)
-sequenceResult lst =
-    case lst of
-        x :: xs -> x
-                |> Result.andThen (\xval -> (sequenceResult xs)
-                                  |> Result.andThen (\xsval -> Ok (xval::xsval)))
-        [] -> Ok []
+sequenceResult xxs =
+    let
+        extendOk x xs = Ok (x::xs)
+        sequenceStep xs x = sequenceResult xs |> Result.andThen (extendOk x)
+        extendResult xs = Result.andThen (sequenceStep xs)
+    in
+        case xxs of
+            x::xs -> x |> extendResult xs
+            [] -> Ok []
