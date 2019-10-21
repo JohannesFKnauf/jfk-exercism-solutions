@@ -7,5 +7,6 @@ isLeapYear year =
     else if divisibleBy 4 year then True
     else False
 
+divisibleBy : Int -> Int -> Bool
 divisibleBy a b =
     remainderBy a b == 0
