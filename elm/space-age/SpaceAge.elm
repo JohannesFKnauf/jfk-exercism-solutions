@@ -10,7 +10,15 @@ type Planet
   | Uranus
   | Neptune
 
-earthPeriodSeconds = 31557600.0
+
+ageOn : Planet -> Float -> Float
+ageOn planet ageSeconds =
+    ageSeconds / (periodSeconds planet)
+
+
+periodSeconds : Planet -> Float
+periodSeconds planet =
+    periodEarthYears planet * earthPeriodSeconds
 
 periodEarthYears : Planet -> Float
 periodEarthYears planet =
@@ -24,10 +32,4 @@ periodEarthYears planet =
         Uranus -> 84.016846
         Neptune -> 164.79132
 
-periodSeconds : Planet -> Float
-periodSeconds =
-    periodEarthYears >> (*) earthPeriodSeconds
-
-ageOn : Planet -> Float -> Float
-ageOn planet ageSeconds =
-    ageSeconds / (periodSeconds planet)
+earthPeriodSeconds = 31557600.0
