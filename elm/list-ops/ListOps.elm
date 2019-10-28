@@ -12,11 +12,11 @@ module ListOps
 
 
 length : List a -> Int
-length =
+length list =
     let
         inc _ acc = acc + 1
     in
-        foldl inc 0
+        foldl inc 0 list
 
 reverse : List a -> List a
 reverse list =
@@ -36,24 +36,18 @@ foldr f acc list =
 
 map : (a -> b) -> List a -> List b
 map f list =
-    case list of
-        [] -> []
-        x::xs -> (f x)::(map f xs)
+    foldr (f >> (::)) [] list
 
 filter : (a -> Bool) -> List a -> List a
 filter pred list =
-    case list of
-        [] -> []
-        x::xs -> if pred x then
-                     x::(filter pred xs)
-                 else
-                     (filter pred xs)
+    let
+        appendIf p x acc = if p x then x::acc else acc
+    in
+        foldr (appendIf pred) [] list
 
 append : List a -> List a -> List a
-append xxs ys =
-    case xxs of
-        [] -> ys
-        x::xs -> x::(append xs ys)
+append xs ys =
+    foldr (::) ys xs
 
 concat : List (List a) -> List a
 concat list =
