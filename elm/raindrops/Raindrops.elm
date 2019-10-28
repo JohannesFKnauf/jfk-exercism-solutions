@@ -1,30 +1,17 @@
 module Raindrops exposing (raindrops)
 
-
-ifDivisibleReturn : Int -> Int -> String -> String
-ifDivisibleReturn divisor candidate msg =
-    case remainderBy divisor candidate of
-        0 ->
-            msg
-        _ ->
-            ""
-
-pling : Int -> String
-pling number =
-    ifDivisibleReturn 3 number "Pling"
-
-plang : Int -> String
-plang number =
-    ifDivisibleReturn 5 number "Plang"
-
-plong : Int -> String
-plong number =
-    ifDivisibleReturn 7 number "Plong"
-
+        
 raindrops : Int -> String
 raindrops number =
     let
-        plingplangplong = pling number ++ plang number ++ plong number
+        ifDivisibleBy divisor msg candidate = if remainderBy divisor candidate == 0 then msg else ""
+        pling = ifDivisibleBy 3 "Pling"
+        plang = ifDivisibleBy 5 "Plang"
+        plong = ifDivisibleBy 7 "Plong"
+        applyTo x f = f x
+        plingplangplong = [pling, plang, plong] |>
+                              List.map (applyTo number) |>
+                              String.concat
     in
         case plingplangplong of
             "" ->
