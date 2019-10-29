@@ -1,10 +1,8 @@
 // Package letter provides a parallel letter count algorithm
 package letter
 
-// ConcurrentFrequency counts letters in text using a map-reduce like approach
+// ConcurrentFrequency counts letters in text using a concurrent approach
 // ss is an array of substrings to be counted
-// individual substrings are counted concurrently (shared-nothing) in numWorkers (default: 4) go routines
-// the final result is combined sequentially
 func ConcurrentFrequency(ss []string) FreqMap {
 	freqs := make(chan FreqMap, 10)
 
