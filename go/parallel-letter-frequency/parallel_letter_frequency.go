@@ -6,7 +6,7 @@ package letter
 // individual substrings are counted concurrently (shared-nothing) in numWorkers (default: 4) go routines
 // the final result is combined sequentially
 func ConcurrentFrequency(ss []string) FreqMap {
-	freqs := make(chan FreqMap)
+	freqs := make(chan FreqMap, 10)
 
 	for _, s := range ss {
 		go func(s string) {
@@ -15,10 +15,8 @@ func ConcurrentFrequency(ss []string) FreqMap {
 	}
 
 	r := FreqMap{}
-	taskCount := len(ss)
-	for i := 0; i < taskCount; i++ {
-		f := <-freqs
-		for k, v := range f {
+	for range ss {
+		for k, v := range <-freqs {
 			r[k] += v
 		}
 	}
