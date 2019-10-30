@@ -4,17 +4,15 @@ import Dict exposing (Dict)
 
 
 scoreWord : String -> Int
-scoreWord word =
+scoreWord =
     let
         letterScore letter = letterScores
-                           |> Dict.get letter
+                           |> Dict.get (Char.toUpper letter)
                            |> Maybe.withDefault 0
     in
-        word
-            |> String.toList
-            |> List.map Char.toUpper
-            |> List.map letterScore
-            |> List.sum
+        String.toList
+            >> List.map letterScore
+            >> List.sum
 
 
 letterScores : Dict Char Int
