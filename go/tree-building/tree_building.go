@@ -32,15 +32,15 @@ func Build(records []Record) (*Node, error) {
 	for i, record := range records {
 		switch {
 		case i > record.ID:
-			return nil, fmt.Errorf("Records contain duplicates. Expected next record.ID '%d', but got '%d'.", i, record.ID)
+			return nil, fmt.Errorf("records contain duplicates; expected next record.ID '%d', but got '%d'", i, record.ID)
 		case i < record.ID:
-			return nil, fmt.Errorf("Records are non-continuous. Expected next record.ID '%d', but got '%d'.", i, record.ID)
+			return nil, fmt.Errorf("records are non-continuous; expected next record.ID '%d', but got '%d'", i, record.ID)
 		case record.ID == 0 && record.Parent != 0:
-			return nil, fmt.Errorf("Root node '%v' does not reference itself.", record)
+			return nil, fmt.Errorf("root node '%v' does not reference itself", record)
 		case record.ID != 0 && record.Parent == record.ID:
-			return nil, fmt.Errorf("Non-root node '%v' is referencing itself.", record)
+			return nil, fmt.Errorf("non-root node '%v' is referencing itself", record)
 		case record.ID != 0 && record.Parent > record.ID:
-			return nil, fmt.Errorf("Parent ID '%d' higher than record ID '%d'.", record.Parent, record.ID)
+			return nil, fmt.Errorf("parent ID '%d' higher than record ID '%d'", record.Parent, record.ID)
 		}
 
 		node := Node{
