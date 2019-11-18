@@ -1,196 +1,175 @@
 module Say exposing (SayError(..), say)
 
 import Dict
-import Maybe
+
 
 type SayError
     = Negative
     | TooLarge
 
+
+type AnnotatedString
+    = Word String
+    | OptionalAndPrefix
+    | OptionalAndSuffix
+    | MandatoryAndPrefix
+    | MandatoryAndSuffix
+    | None
+
+
 say : Int -> Result SayError String
 say number =
     if number == 0 then
         Ok "zero"
-    else
-        Ok number
-            |> Result.andThen excludeNegative
-            |> Result.andThen excludeLarge
-            |> Result.andThen (splitIntoTriples >> Ok)
-            |> Result.andThen (flip zip powerWords >> Ok)
-            |> Result.andThen (List.reverse >> Ok)
-            |> Result.andThen (List.concatMap tripleWords >> Ok)
-            |> Result.andThen (List.filter ((/=) "") >> Ok)
-            |> Result.andThen (stripLeadingAnds >> Ok)
-            |> Result.andThen (String.join " " >> Ok)
-
-excludeNegative number =
-    if number < 0 then
+    else if number < 0 then
         Err Negative
-    else
-        Ok number
-
-excludeLarge number =
-    if number > 999999999999 then
+    else if number > 999999999999 then
         Err TooLarge
     else
-        Ok number
+        number
+            |> chunksOfThousand
+            |> List.map2 Tuple.pair magnitudes
+            |> List.filter (\( _, chunk ) -> chunk /= 0)
+            |> List.map (\( magnitude, chunk ) -> sayChunk magnitude chunk)
+            |> List.reverse
+            |> List.concat
+            |> applyAnds
+            |> String.join " "
+            |> Ok
 
-stripLeadingAnds : List String -> List String
-stripLeadingAnds list =
-    case list of
-        [] -> []
-        x :: xs -> if x == "and" then
-                       xs
-                   else
-                       list
-            
-splitIntoTriples : Int -> List Int
-splitIntoTriples number =
+
+-- chunksOfThousand splits a number into chunks of thousand
+-- note: it will be in reverse order, starting with the smallest chunk
+chunksOfThousand : Int -> List Int
+chunksOfThousand n =
     let
-        head = number // 1000
-        lastTriple = remainderBy 1000 number
+        ( rest, chunk ) =
+            splitBy 1000 n
     in
-        if head > 0 then
-            lastTriple :: (splitIntoTriples head)
-        else
-            lastTriple :: []
+    if n > 0 then
+        chunk :: chunksOfThousand rest
 
-tripleWords : (Int, String) -> List String
-tripleWords triplePair =
+    else
+        []
+
+-- applyAnds expands the "and" concatenations based on a simple rule
+-- Simple Word elements are just passed through.
+-- Whenever a prefix/suffix pair appears and at least 1 part is mandatory, "and" is expanded. 
+applyAnds : List AnnotatedString -> List String
+applyAnds xxs =
     let
-        (triple, powerWord) = triplePair
+        applyAnd x y =
+            case (x, y) of
+                (Word a, _) -> [a]
+                (MandatoryAndSuffix, MandatoryAndPrefix) -> ["and"]
+                (MandatoryAndSuffix, OptionalAndPrefix) -> ["and"]
+                (OptionalAndSuffix, MandatoryAndPrefix) -> ["and"]
+                _ -> []
     in
-        if triple == 0 then
-            []
-        else
-            sayTriple triple powerWord
-    
+    List.map2 applyAnd xxs (None :: xxs) |> List.concat
 
-sayTriple : Int -> String -> List String
-sayTriple number powerWord =
+-- sayChunk expands a chunk into words and "and" concatenation annotations
+sayChunk : String -> Int -> List AnnotatedString
+sayChunk magnitude chunk =
     let
-        hundredsSaid = sayHundreds number
-        hundredsSaidAugmented = case hundredsSaid of
-                                      Nothing -> []
-                                      Just word -> [word, "hundred"]
-        secondLastSaid = saySecondLast number
-        secondLastSaidAugmented = case secondLastSaid of
-                                      Nothing -> []
-                                      Just word -> case hundredsSaidAugmented of
-                                                       [] -> if powerWord == "" then 
-                                                                 ["and", word]
-                                                             else
-                                                                 [word]
-                                                       a -> ["and", word]
-    in
-        hundredsSaidAugmented ++ secondLastSaidAugmented ++ [powerWord]
+        ( hundreds, tens ) =
+            splitBy 100 chunk
 
-sayHundreds : Int -> Maybe String
-sayHundreds number =
+        hun =
+            if hundreds > 0 then
+                [ Word (sayTwoDigitNumber hundreds), Word "hundred", MandatoryAndPrefix ]
+
+            else
+                []
+
+        min =
+            if tens > 0 && magnitude /= "" then
+                [ OptionalAndSuffix, Word <| sayTwoDigitNumber tens ]
+
+            else if tens > 0 && magnitude == "" then
+                [ MandatoryAndSuffix, Word <| sayTwoDigitNumber tens ]
+
+            else
+                []
+
+        mag =
+            if magnitude /= "" then
+                [ Word magnitude, OptionalAndPrefix ]
+
+            else
+                []
+    in
+    hun ++ min ++ mag
+
+-- sayTwoDigitNumber expands a two-digit number into a word
+sayTwoDigitNumber : Int -> String
+sayTwoDigitNumber num =
     let
-        toSay = hundreds number
-        singleDigit = remainderBy 10 toSay
-        fixedWord = Dict.get singleDigit twoDigitNumberWords
+        ( tens, ones ) =
+            splitBy 10 num
     in
-        if singleDigit == 0 then
-            Nothing
-        else
-            fixedWord
+    if tens == 0 then
+        safeGet ones primitiveNumberWords
 
-saySecondLast : Int -> Maybe String
-saySecondLast number =
-    let
-        digits = remainderBy 100 number
-        secondLast = saySecondLastDigits digits
-    in
-        if secondLast == "" then
-            Nothing
-        else
-            Just secondLast
+    else if tens == 1 then
+        safeGet (10 + ones) primitiveNumberWords
 
-safesaySingleDigit : Int -> String
-safesaySingleDigit number =
-    let
-        singleDigit = remainderBy 10 number
-        fixedWord = Dict.get singleDigit twoDigitNumberWords
-    in
-        Maybe.withDefault "" fixedWord
+    else if ones == 0 then
+        safeGet (10 * tens) primitiveNumberWords
 
-                       
-saySecondLastDigits : Int -> String
-saySecondLastDigits number =
-    let
-        secondLastDigits = remainderBy 100 number
-        fixedWord = Dict.get secondLastDigits twoDigitNumberWords
-    in
-        case fixedWord of
-            Just x -> x
-            Nothing -> let
-                           tensSaid = (saySecondLastDigits <| (*) 10 <| tens <| number)
-                           onesSaid = (saySecondLastDigits <| ones <| number)
-                       in
-                           tensSaid ++ "-" ++ onesSaid
+    else
+        safeGet (10 * tens) primitiveNumberWords ++ "-" ++ safeGet ones primitiveNumberWords
 
-                       
-hundreds : Int -> Int
-hundreds =
-     ns 100
+-- primitiveNumberWords contains all number word primitives that can not be generated by rules
+primitiveNumberWords : Dict.Dict Int String
+primitiveNumberWords =
+    Dict.fromList
+        [ ( 0, "zero" )
+        , ( 1, "one" )
+        , ( 2, "two" )
+        , ( 3, "three" )
+        , ( 4, "four" )
+        , ( 5, "five" )
+        , ( 6, "six" )
+        , ( 7, "seven" )
+        , ( 8, "eight" )
+        , ( 9, "nine" )
+        , ( 10, "ten" )
+        , ( 11, "eleven" )
+        , ( 12, "twelve" )
+        , ( 13, "thirteen" )
+        , ( 14, "fourteen" )
+        , ( 15, "tifteen" )
+        , ( 16, "sixteen" )
+        , ( 17, "seventeen" )
+        , ( 18, "eighteen" )
+        , ( 19, "nineteen" )
+        , ( 20, "twenty" )
+        , ( 30, "thirty" )
+        , ( 40, "forty" )
+        , ( 50, "fifty" )
+        , ( 60, "sixty" )
+        , ( 70, "seventy" )
+        , ( 80, "eighty" )
+        , ( 90, "ninety" )
+        ]
 
-tens : Int -> Int
-tens =
-    ns 10
+-- magnitudes contains all magnitude words
+magnitudes : List String
+magnitudes =
+    [ ""
+    , "thousand"
+    , "million"
+    , "billion"
+    ]
 
-ones : Int -> Int
-ones =
-    ns 1
 
-ns n x =
-    x // n |> remainderBy 10
+-- splitBy is a convenience function to split a number by integral division
+splitBy : Int -> Int -> ( Int, Int )
+splitBy div num =
+    ( num // div, remainderBy div num )
 
-flip : (a -> b -> c) -> (b -> a -> c)
-flip f a b =
-    f b a
-
-zip : List a -> List b -> List (a, b)
-zip =
-    List.map2 Tuple.pair
-
-        
-twoDigitNumberWords : Dict.Dict Int String
-twoDigitNumberWords = Dict.fromList [
-                       (0, ""),
-                       (1, "one"),
-                       (2, "two"),
-                       (3, "three"),
-                       (4, "four"),
-                       (5, "five"),
-                       (6, "six"),
-                       (7, "seven"),
-                       (8, "eight"),
-                       (9, "nine"),
-                       (10, "ten"),
-                       (11, "eleven"),
-                       (12, "twelve"),
-                       (13, "thirteen"),
-                       (14, "fourteen"),
-                       (15, "tifteen"),
-                       (16, "sixteen"),
-                       (17, "seventeen"),
-                       (18, "eighteen"),
-                       (19, "nineteen"),
-                       (20, "twenty"),
-                       (30, "thirty"),
-                       (40, "forty"),
-                       (50, "fifty"),
-                       (60, "sixty"),
-                       (70, "seventy"),
-                       (80, "eighty"),
-                       (90, "ninety")
-                      ]
-                   
-powerWords = [
-               "",
-               "thousand",
-               "million",
-               "billion"
-              ]
+-- safeGet is a convenience function to lookup a key from a dict that is known to exist
+safeGet : comparable -> Dict.Dict comparable String -> String
+safeGet key dict =
+    Dict.get key dict |> Maybe.withDefault ""
