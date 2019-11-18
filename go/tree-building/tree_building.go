@@ -21,26 +21,18 @@ type Node struct {
 // Build assembles a tree from a set of records
 // it returns a pointer to the root node
 func Build(records []Record) (*Node, error) {
-	n := len(records)
-	if n == 0 {
-		return nil, nil
-	}
-	nodes := make([]*Node, n)
+	nodes := make(map[int]*Node)
 
 	sort.Slice(records, func(i, j int) bool { return records[i].ID < records[j].ID })
 
 	for i, record := range records {
 		switch {
-		case i > record.ID:
-			return nil, fmt.Errorf("records contain duplicates; expected next record.ID '%d', but got '%d'", i, record.ID)
-		case i < record.ID:
-			return nil, fmt.Errorf("records are non-continuous; expected next record.ID '%d', but got '%d'", i, record.ID)
+		case i != record.ID:
+			return nil, fmt.Errorf("expected next record.ID '%d', but got '%d'", i, record.ID)
 		case record.ID == 0 && record.Parent != 0:
 			return nil, fmt.Errorf("root node '%v' does not reference itself", record)
-		case record.ID != 0 && record.Parent == record.ID:
-			return nil, fmt.Errorf("non-root node '%v' is referencing itself", record)
-		case record.ID != 0 && record.Parent > record.ID:
-			return nil, fmt.Errorf("parent ID '%d' higher than record ID '%d'", record.Parent, record.ID)
+		case record.ID > 0 && record.Parent >= record.ID:
+			return nil, fmt.Errorf("parent ID '%d' must be less than record ID '%d'", record.Parent, record.ID)
 		}
 
 		node := Node{
@@ -48,7 +40,7 @@ func Build(records []Record) (*Node, error) {
 		}
 		nodes[i] = &node
 
-		if record.ID != record.Parent {
+		if record.ID > 0 {
 			parent := nodes[record.Parent]
 			parent.Children = append(parent.Children, &node)
 		}
