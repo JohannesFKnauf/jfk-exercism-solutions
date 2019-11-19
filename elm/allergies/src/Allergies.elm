@@ -29,9 +29,8 @@ allAllergies =
 isAllergicTo : Allergy -> Int -> Bool
 isAllergicTo allergy score =
     zip allAllergies (bitList score)
-        |> List.filter (hasAllergy allergy)
-        |> List.length
-        |> (<) 0
+        |> find (hasAllergy allergy)
+        |> (/=) Nothing
 
 
 hasAllergy : Allergy -> ( Allergy, Int ) -> Bool
@@ -49,6 +48,20 @@ toList score =
 zip : List a -> List b -> List ( a, b )
 zip =
     List.map2 Tuple.pair
+
+
+find : (a -> Bool) -> List a -> Maybe a
+find pred xxs =
+    case xxs of
+        [] ->
+            Nothing
+
+        x :: xs ->
+            if pred x then
+                Just x
+
+            else
+                find pred xs
 
 
 bitList : Int -> List Int
