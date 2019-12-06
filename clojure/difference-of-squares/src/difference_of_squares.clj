@@ -16,6 +16,5 @@
       square))
 
 (defn difference [n]
-  (->> n
-       ((juxt square-of-sum sum-of-squares))
-       (apply -)))
+  (- (square-of-sum n)
+     (sum-of-squares n)))
