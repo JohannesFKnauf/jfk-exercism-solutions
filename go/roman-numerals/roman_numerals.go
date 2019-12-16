@@ -26,9 +26,7 @@ func ToRomanNumeral(n int) (string, error) {
 		r += "MMM"
 	}
 
-	n %= 1000
-
-	switch n / 100 {
+	switch n % 1000 / 100 {
 	case 1:
 		r += "C"
 	case 2:
@@ -49,9 +47,7 @@ func ToRomanNumeral(n int) (string, error) {
 		r += "CM"
 	}
 
-	n %= 100
-
-	switch n / 10 {
+	switch n % 100 / 10 {
 	case 1:
 		r += "X"
 	case 2:
@@ -71,10 +67,8 @@ func ToRomanNumeral(n int) (string, error) {
 	case 9:
 		r += "XC"
 	}
-
-	n %= 10
 	
-	switch n {
+	switch n % 10 {
 	case 1:
 		r += "I"
 	case 2:
