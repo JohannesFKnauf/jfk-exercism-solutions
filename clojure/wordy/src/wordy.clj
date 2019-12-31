@@ -4,28 +4,23 @@
 
 (def wordy-parser
   (insta/parser
-   "expression = <intro> <whitespace+> initial ( <whitespace> operation )* <question-mark>
-    intro = 'What is'
-    question-mark = '?'
+   "expression = <'What is'> <' '> initial ( <' '> operation )* <'?'>
     initial = number
-    operation = operator <whitespace+> operand
-    operator = minus | plus | divided | multiplied
-    operand = number
-    minus = 'minus'
-    plus = 'plus'
-    divided = 'divided by'
-    multiplied = 'multiplied by'
-    number = #'-?[0-9]+'
-    whitespace = #'\\s'"))
+    operation = operator <' '> operand
+    <operator> = minus | plus | divided | multiplied
+    <operand> = number
+    minus = <'minus'>
+    plus = <'plus'>
+    divided = <'divided by'>
+    multiplied = <'multiplied by'>
+    number = #'-?[0-9]+'"))
 
 (defn ast->value [ast]
-  (insta/transform {:plus (fn [x] +)
-                    :minus (fn [x] -)
-                    :divided (fn [x] /)
-                    :multiplied (fn [x] *)
-                    :operator identity
+  (insta/transform {:plus (fn [] +)
+                    :minus (fn [] -)
+                    :divided (fn [] /)
+                    :multiplied (fn [] *)
                     :number #(Integer/parseInt %)
-                    :operand identity
                     :operation #(fn [x] (%1 x %2))
                     :initial #(partial + %)
                     :expression #(reduce (fn [acc f] (f acc)) 0 %&)}
