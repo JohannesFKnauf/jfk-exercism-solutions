@@ -21,13 +21,10 @@
     (conj stack bracket)
     (if (= (peek stack) (opening-bracket bracket))
       (pop stack)
-      (reduced nil))))
-
-(defn brackets [s]
-  (filter all-brackets s))
+      (reduced '(\☠)))))
 
 (defn valid? [s]
   (->> s
-       brackets
+       (filter all-brackets)
        (reduce update-bracket-stack '())
-       ((every-pred empty? (complement nil?)))))
+       empty?))
