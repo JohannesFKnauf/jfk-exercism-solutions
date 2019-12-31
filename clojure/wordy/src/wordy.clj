@@ -1,6 +1,5 @@
 (ns wordy
-  (:require [clojure.string]
-            [instaparse.core :as insta]))
+  (:require [instaparse.core :as insta]))
 
 (def wordy-parser
   (insta/parser
