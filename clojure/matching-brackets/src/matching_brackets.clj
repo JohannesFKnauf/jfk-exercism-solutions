@@ -1,20 +1,22 @@
 (ns matching-brackets
   (:require [clojure.set]))
 
+(def brackets
+  {\) \(
+   \] \[
+   \} \{})
+
 (def opening-brackets
-  #{\( \[ \{})
+  (set (vals brackets)))
 
 (def closing-brackets
-  #{\) \] \}})
+  (set (keys brackets)))
 
 (def all-brackets
   (clojure.set/union opening-brackets closing-brackets))
 
 (defn opening-bracket [bracket]
-  (case bracket
-    \) \(
-    \] \[
-    \} \{))
+  (get brackets bracket))
 
 (defn update-bracket-stack [stack bracket]
   (if (opening-brackets bracket)
