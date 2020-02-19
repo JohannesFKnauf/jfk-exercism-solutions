@@ -1,3 +1,3 @@
 #!/bin/bash
 
-guile test.scm
+make guile
