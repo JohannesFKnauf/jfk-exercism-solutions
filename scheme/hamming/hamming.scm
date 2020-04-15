@@ -8,9 +8,8 @@
   (unless (= (string-length strand-a)
              (string-length strand-b))
     (raise "strands have different length"))
-  (length
-   (filter identity
-           (map different?
-                (string->list strand-a)
-                (string->list strand-b)))))
+   (apply + 
+    (map (lambda (a b) (if (char=? a b) 0 1))
+         (string->list strand-a)
+         (string->list strand-b))))
 
