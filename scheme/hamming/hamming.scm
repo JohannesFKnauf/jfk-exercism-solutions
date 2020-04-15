@@ -5,12 +5,12 @@
                nucl-b)))
 
 (define (hamming-distance strand-a strand-b)
-  (if (different? (string-length strand-a)
-                  (string-length strand-b))
-      (raise "strands have different length")
-      (length
-       (filter identity
-               (map different?
-                    (string->list strand-a)
-                    (string->list strand-b))))))
+  (unless (= (string-length strand-a)
+             (string-length strand-b))
+    (raise "strands have different length"))
+  (length
+   (filter identity
+           (map different?
+                (string->list strand-a)
+                (string->list strand-b)))))
 
