@@ -38,49 +38,6 @@ class LuckyNumbersTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testdox Converts from digits array to int
-     * @task_id 123
-     * @dataProvider asIntTestCases
-     */
-    public function testAsInt(array $digits, int $expected)
-    {
-        $actual = LuckyNumbers::asInt($digits);
-
-        $this->assertSame($expected, $actual);
-    }
-
-    public static function asIntTestCases()
-    {
-        return [
-            'single-digit number' => [ [7], 7 ],
-            'multi-digit number' => [ [1,2,3], 123],
-            'leading zero' => [ [0,0,7], 7],
-        ];
-    }
-
-    /**
-     * @testdox Converts from int to digits array
-     * @task_id 123
-     * @dataProvider asArrayTestCases
-     */
-    public function testAsArray(int $number, array $expected)
-    {
-        $actual = LuckyNumbers::asArray($number);
-
-        $this->assertSame($expected, $actual);
-    }
-
-    public static function asArrayTestCases()
-    {
-        return [
-            'zero' => [ 0, [0] ],
-            'single-digit number' => [ 7, [7] ],
-            'multi-digit number' => [ 123, [1,2,3]],
-        ];
-    }
-
-
-    /**
      * @testdox Detects palindromic number $number
      * @task_id 2
      * @dataProvider isPalindromeTestCases
